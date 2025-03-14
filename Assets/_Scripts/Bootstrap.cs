@@ -5,21 +5,26 @@ using UnityEngine;
 
 public class Bootstrap : MonoBehaviour
 {
-    private MouseTracker _mouseTracker;
+    [SerializeField] private GameData _gameData;
+    public GameData GameData { get { return _gameData; } }
+
     private List<Action> _actionsOnUpdate = new();
 
     private void Awake()
     {
+        GameIsReady(false);
         StartCoroutine(LoadGame());
     }
 
     private IEnumerator LoadGame() {
-        StartCoroutine(LoadGameBar());
-        yield return StartCoroutine(LoadGameData());
+        StartCoroutine(LoadGameData());
+        yield return StartCoroutine(LoadGameBar());
+        GameIsReady(true);
     }
 
     private IEnumerator LoadGameData() {
-        yield return LoadHeavyData(() => { _mouseTracker = new MouseTracker(this); });
+        yield return LoadHeavyData(() => { _gameData.TryFindNullFields(); });
+        yield return LoadHeavyData(() => { new MouseTracker(this); });
     }
 
     private IEnumerator LoadHeavyData(Action action) {
@@ -30,7 +35,8 @@ public class Bootstrap : MonoBehaviour
     private IEnumerator LoadGameBar() {
         float progress = 0f;
         while (progress <= 1) {
-            progress += Time.deltaTime / 1f;
+            progress += Time.deltaTime / .1f;
+            _gameData.ProgressBar.value = progress;
             yield return null;
         }
     }
@@ -43,5 +49,10 @@ public class Bootstrap : MonoBehaviour
 
     public void AddActionToList(Action action) {
         _actionsOnUpdate.Add(action);
+    }
+
+    private void GameIsReady(bool value) {
+        _gameData.Canvas.gameObject.SetActive(!value);
+        _gameData.ProgressBar.value = !value ? 1 : 0;
     }
 }
