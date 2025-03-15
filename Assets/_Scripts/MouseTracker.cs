@@ -6,18 +6,19 @@ public class MouseTracker {
     private Vector3 _offset = new Vector3(0, 0, 10);
 
     public MouseTracker(Bootstrap bootstrap) {
-        bootstrap.AddActionToList(OnUpdate);
+        bootstrap.AddActionToList(OnUpdate, true);
         CreateMousePoint(bootstrap);
         _camera = bootstrap.GameData.Camera;
         Cursor.visible = false;
     }
 
-    public void OnUpdate() {
+    private void OnUpdate() {
         MoveMousePoint();
     }
 
     private void CreateMousePoint (Bootstrap bootstrap) {
         var mousePoint = new GameObject("MousePoint");
+        mousePoint.layer = 7;
         var mousePointSpriteRenderer = mousePoint.AddComponent<SpriteRenderer>();
         mousePointSpriteRenderer.sprite = bootstrap.GameData.MouseImage;
         _mousePointPosition = mousePoint.transform;

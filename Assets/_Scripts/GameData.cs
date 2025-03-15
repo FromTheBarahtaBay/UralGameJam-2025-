@@ -7,29 +7,40 @@ using UnityEngine.UI;
 [System.Serializable]
 public class GameData {
 
-    //[Header("Player")]
+    [Header("Player")]
     public GameObject Player;
+    public float SpeedToMove = 5f;
+    [HideInInspector] public Rigidbody2D PlayerRigidbody2D;
 
-    //[Header("Camera")]
+    [Header("Camera")]
     public Camera Camera;
 
-    //[Header("UI (Loading)")]
+    [Header("UI (Loading)")]
     public Canvas Canvas;
     public Slider ProgressBar;
 
-    //[Header("Mouse")]
+    [Header("Mouse")]
     public Sprite MouseImage;
 
-    public void TryFindNullFields() {
+    [Header("FieldOfView")]
+    public Material Material;
+    public LayerMask LayerMaskWalls;
+    public int RayCount = 50;
+    public float ViewDistance = 8f;
+    public float Fov = 90f;
 
-        Type type = this.GetType();
-        FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+    public void TryFindNullFields(GameData gameData) {
+
+        Type type = typeof(GameData);
+        FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
         foreach (var field in fields) {
-            var fieldValue = field.GetValue(this);
+            var fieldValue = field.GetValue(gameData);
             if (fieldValue == null) {
-                Debug.Log("WORK!");
-                throw new Exception($"EXCEPTION: Field {field.Name} is null!");
+                Debug.LogError($"EXCEPTION: Field {field.Name} is null!");
             }
         }
+
+        if (!Player.TryGetComponent<Rigidbody2D>(out PlayerRigidbody2D))
+            Debug.LogError("EXEPTION: no Rigidbody2D on Player!");
     }
 }

@@ -9,6 +9,7 @@ public class Bootstrap : MonoBehaviour
     public GameData GameData { get { return _gameData; } }
 
     private List<Action> _actionsOnUpdate = new();
+    private List<Action> _actionsOnFixedUpdate = new();
 
     private void Awake()
     {
@@ -17,14 +18,20 @@ public class Bootstrap : MonoBehaviour
     }
 
     private IEnumerator LoadGame() {
-        StartCoroutine(LoadGameData());
-        yield return StartCoroutine(LoadGameBar());
+        var coroutinData = StartCoroutine(LoadGameData());
+        var coroutineBar = StartCoroutine(LoadGameBar());
+        yield return coroutinData;
+        yield return coroutineBar;
         GameIsReady(true);
     }
 
     private IEnumerator LoadGameData() {
-        yield return LoadHeavyData(() => { _gameData.TryFindNullFields(); });
+        yield return LoadHeavyData(() => { _gameData.TryFindNullFields(_gameData); });
         yield return LoadHeavyData(() => { new MouseTracker(this); });
+        yield return LoadHeavyData(() => { new TurnPlayerToMouse(this); });
+        yield return LoadHeavyData(() => { new PlayerMove(this); });
+        yield return LoadHeavyData(() => { new CameraMove(this); });
+        yield return LoadHeavyData(() => { new FieldOfView(this); });
     }
 
     private IEnumerator LoadHeavyData(Action action) {
@@ -35,7 +42,7 @@ public class Bootstrap : MonoBehaviour
     private IEnumerator LoadGameBar() {
         float progress = 0f;
         while (progress <= 1) {
-            progress += Time.deltaTime / .1f;
+            progress += Time.deltaTime / .4f;
             _gameData.ProgressBar.value = progress;
             yield return null;
         }
@@ -47,8 +54,16 @@ public class Bootstrap : MonoBehaviour
             action?.Invoke();
     }
 
-    public void AddActionToList(Action action) {
-        _actionsOnUpdate.Add(action);
+    private void FixedUpdate() {
+        foreach (var action in _actionsOnFixedUpdate)
+            action?.Invoke();
+    }
+
+    public void AddActionToList(Action action, bool toUpdate) {
+        if (toUpdate)
+            _actionsOnUpdate.Add(action);
+        else
+            _actionsOnFixedUpdate.Add(action);
     }
 
     private void GameIsReady(bool value) {
