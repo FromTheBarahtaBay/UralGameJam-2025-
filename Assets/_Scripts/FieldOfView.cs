@@ -53,7 +53,7 @@ public class FieldOfView
 
     private void CreateMeshOfView() {
 
-        float angle = _startingAngle + 90f;
+        float angle = _startingAngle + 100f;
         float angleIncrease = _fov / _rayCount;
 
         Vector3[] vertices = new Vector3[_rayCount + 1 + 1];
