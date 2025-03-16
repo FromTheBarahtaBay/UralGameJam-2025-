@@ -8,7 +8,7 @@ public class CameraMove
     public CameraMove (Bootstrap bootstrap) {
         bootstrap.AddActionToList(OnFixedUpdate, false);
         _cameraTransform = bootstrap.GameData.Camera.transform;
-        _playerTransform = bootstrap.GameData.Player.transform;
+        _playerTransform = bootstrap.GameData.PlayerBody.transform;
     }
 
     private void OnFixedUpdate() {

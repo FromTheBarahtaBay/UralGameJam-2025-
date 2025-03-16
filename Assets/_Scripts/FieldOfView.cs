@@ -11,13 +11,12 @@ public class FieldOfView
     private float _viewDIstance = 10f;
 
     private Transform _playerTransform;
-    private GameObject _fieldOfView;
     private Camera _camera;
 
     public FieldOfView(Bootstrap bootstrap) {
         _mesh = new Mesh();
         _layerMask = bootstrap.GameData.LayerMaskWalls;
-        _playerTransform = bootstrap.GameData.Player.transform;
+        _playerTransform = bootstrap.GameData.PlayerBody.transform;
         _camera = bootstrap.GameData.Camera;
         _rayCount = bootstrap.GameData.RayCount;
         _viewDIstance = bootstrap.GameData.ViewDistance;
@@ -36,8 +35,7 @@ public class FieldOfView
     }
 
     private void CreateFieldOfViewObject(Bootstrap bootstrap) {
-        GameObject fieldOfView = new GameObject("FieldOfView");
-        _fieldOfView = fieldOfView;
+        GameObject fieldOfView = new ("FieldOfView");
         fieldOfView.layer = 7;
         fieldOfView.transform.position = Vector3.zero;
         fieldOfView.transform.SetParent(null);

@@ -16,7 +16,7 @@ public class PlayerMove
         _playerRigidbody2D.centerOfMass = Vector2.zero;
         _speed = bootstrap.GameData.SpeedToMove;
         _currentSpeed = _speed;
-        _playerTransform = bootstrap.GameData.Player.transform;
+        _playerTransform = bootstrap.GameData.PlayerBody.transform;
         _camera = bootstrap.GameData.Camera;
     }
 

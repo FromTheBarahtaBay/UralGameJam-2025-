@@ -385,9 +385,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _gameData:
-    Player: {fileID: 1787588200}
+    PlayerBody: {fileID: 1787588200}
     SpeedToMove: 3
     PlayerRigidbody2D: {fileID: 0}
+    RangeForInteraction: 3
     Camera: {fileID: 519420031}
     Canvas: {fileID: 799461132}
     ProgressBar: {fileID: 1174554361}
@@ -1539,7 +1540,7 @@ GameObject:
   - component: {fileID: 1787588203}
   m_Layer: 7
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

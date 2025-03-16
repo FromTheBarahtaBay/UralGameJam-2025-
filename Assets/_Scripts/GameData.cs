@@ -8,9 +8,10 @@ using UnityEngine.UI;
 public class GameData {
 
     [Header("Player")]
-    public GameObject Player;
+    public GameObject PlayerBody;
     public float SpeedToMove = 5f;
     [HideInInspector] public Rigidbody2D PlayerRigidbody2D;
+    public float RangeForInteraction = 3f;
 
     [Header("Camera")]
     public Camera Camera;
@@ -40,7 +41,7 @@ public class GameData {
             }
         }
 
-        if (!Player.TryGetComponent<Rigidbody2D>(out PlayerRigidbody2D))
+        if (!PlayerBody.TryGetComponent<Rigidbody2D>(out PlayerRigidbody2D))
             Debug.LogError("EXEPTION: no Rigidbody2D on Player!");
     }
 }

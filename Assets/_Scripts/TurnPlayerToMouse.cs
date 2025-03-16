@@ -7,7 +7,7 @@ public class TurnPlayerToMouse
 
     public TurnPlayerToMouse(Bootstrap bootstrap) {
         bootstrap.AddActionToList(OnUpdate, true);
-        _playerTransform = bootstrap.GameData.Player.transform;
+        _playerTransform = bootstrap.GameData.PlayerBody.transform;
         _camera = bootstrap.GameData.Camera;
     }
 
