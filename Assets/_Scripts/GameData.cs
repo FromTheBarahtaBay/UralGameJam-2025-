@@ -27,8 +27,17 @@ public class GameData {
     public Material Material;
     public LayerMask LayerMaskWalls;
     public int RayCount = 50;
-    public float ViewDistance = 8f;
+    public float ViewDistance = 12f;
     public float Fov = 90f;
+
+    [Header("EnemyNeckBoss")]
+    public GameObject EnemyHead;
+    public GameObject EnemyBody;
+    public Rigidbody2D EnemyRigidbody2D;
+    public LineRenderer NeckLine;
+    public GameObject TargetDir;
+    public GameObject WiggleDir;
+
 
     public void TryFindNullFields(GameData gameData) {
 

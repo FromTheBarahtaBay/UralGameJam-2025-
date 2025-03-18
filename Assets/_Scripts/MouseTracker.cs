@@ -41,6 +41,7 @@ public class MouseTracker {
 
         var mousePointSpriteRenderer = mousePoint.AddComponent<SpriteRenderer>();
         _mouseSpriteRenderer = mousePointSpriteRenderer;
+        _mouseSpriteRenderer.sortingOrder = 1001;
         mousePointSpriteRenderer.sprite = bootstrap.GameData.MouseImage;
         _mousePointPosition = mousePoint.transform;
     }
@@ -65,6 +66,7 @@ public class MouseTracker {
                     _isDragging = true;
                     _offsetForDraggingObject = _camera.ScreenToWorldPoint(Input.mousePosition) - rb.transform.position;
                     _rigidbody2DOfDraggingObject = rb;
+                    Debug.Log($"Gamer takes - {rb.name}");
                 }
             }
         } else if (Input.GetMouseButtonUp(0)) {

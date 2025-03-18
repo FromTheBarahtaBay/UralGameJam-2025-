@@ -32,6 +32,7 @@ public class Bootstrap : MonoBehaviour
         yield return LoadHeavyData(() => { new PlayerMove(this); });
         yield return LoadHeavyData(() => { new CameraMove(this); });
         yield return LoadHeavyData(() => { new FieldOfView(this); });
+        yield return LoadHeavyData(() => { new NeckBoss(this); });
     }
 
     private IEnumerator LoadHeavyData(Action action) {
