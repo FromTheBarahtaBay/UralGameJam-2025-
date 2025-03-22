@@ -37,7 +37,7 @@ public class MouseTracker {
     private void CreateMousePoint (Bootstrap bootstrap) {
 
         var mousePoint = new GameObject("MousePoint");
-        mousePoint.layer = 7;
+        mousePoint.layer = 8;
 
         var mousePointSpriteRenderer = mousePoint.AddComponent<SpriteRenderer>();
         _mouseSpriteRenderer = mousePointSpriteRenderer;

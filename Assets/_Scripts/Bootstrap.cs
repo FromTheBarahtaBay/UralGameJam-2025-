@@ -8,8 +8,13 @@ public class Bootstrap : MonoBehaviour
     [SerializeField] private GameData _gameData;
     public GameData GameData { get { return _gameData; } }
 
+    [SerializeField] private EnemyNeckData _enemyNeckData;
+    public EnemyNeckData EnemyNeckData { get { return _enemyNeckData; } }
+
     private List<Action> _actionsOnUpdate = new();
     private List<Action> _actionsOnFixedUpdate = new();
+
+    public NeckBoss NeckBoss { get; private set; }
 
     private void Awake()
     {
@@ -27,12 +32,14 @@ public class Bootstrap : MonoBehaviour
 
     private IEnumerator LoadGameData() {
         yield return LoadHeavyData(() => { _gameData.TryFindNullFields(_gameData); });
+        yield return LoadHeavyData(() => { NeckBoss = new NeckBoss(this); });
+        yield return LoadHeavyData(() => { new EnemyStatesController(this); });
         yield return LoadHeavyData(() => { new MouseTracker(this); });
         yield return LoadHeavyData(() => { new TurnPlayerToMouse(this); });
-        yield return LoadHeavyData(() => { new PlayerMove(this); });
         yield return LoadHeavyData(() => { new CameraMove(this); });
         yield return LoadHeavyData(() => { new FieldOfView(this); });
-        yield return LoadHeavyData(() => { new NeckBoss(this); });
+        yield return LoadHeavyData(() => { new NeckBossIKController(this); });
+        yield return LoadHeavyData(() => { new PlayerMove(this); });
     }
 
     private IEnumerator LoadHeavyData(Action action) {

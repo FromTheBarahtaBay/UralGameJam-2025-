@@ -8,7 +8,7 @@ public class FieldOfView
     private float _startingAngle;
     private float _fov = 90f;
     private int _rayCount = 50;
-    private float _viewDIstance = 10f;
+    private float _viewDIstance = 25f;
 
     private Transform _playerTransform;
     private Camera _camera;
@@ -51,7 +51,7 @@ public class FieldOfView
 
     private void CreateMeshOfView() {
 
-        float angle = _startingAngle + 100f;
+        float angle = _startingAngle + 140f;
         float angleIncrease = _fov / _rayCount;
 
         Vector3[] vertices = new Vector3[_rayCount + 1 + 1];

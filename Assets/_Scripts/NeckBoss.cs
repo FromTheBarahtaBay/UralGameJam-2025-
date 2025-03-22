@@ -6,10 +6,13 @@ public class NeckBoss
 {
     private Transform _currentTargertHead;
     private Transform _currentTargertMove;
+    private Transform _defaultTargetMove;
+    public Transform DefaultTargetMove { get { return _defaultTargetMove; } }
+    private float _stopDistance = 100f;
 
     // Looking and Moving
     private Transform _transformHead;
-    private float _rotationSpeed = 20f;
+    private float _rotationSpeed = 10f;
     private float _moveSpeed = 4f;
     private Vector2 _direction;
     private Camera _camera;
@@ -18,7 +21,7 @@ public class NeckBoss
 
     // Neck
     private Transform _tarGetDir;
-    private int _lengthOfNeck = 30;
+    private int _lengthOfNeck = 15;
     private LineRenderer _lineRend;
     private Vector3[] _segmentPoses;
     private Vector3[] _segmentV;
@@ -30,25 +33,33 @@ public class NeckBoss
     private Transform _tailEnd;
 
     public NeckBoss(Bootstrap bootstrap) {
-
-        _transformHead = bootstrap.GameData.EnemyHead.transform;
+        _defaultTargetMove = new GameObject("target").transform;
+        _transformHead = bootstrap.EnemyNeckData.EnemyHead.transform;
         _camera = bootstrap.GameData.Camera;
-        _rigidbody2D = bootstrap.GameData.EnemyRigidbody2D;
+        _rigidbody2D = bootstrap.EnemyNeckData.EnemyRigidbody2D;
 
-        _lineRend = bootstrap.GameData.NeckLine;
+        _lineRend = bootstrap.EnemyNeckData.NeckLine;
         _lineRend.positionCount = _lengthOfNeck;
         _segmentPoses = new Vector3[_lengthOfNeck];
         _segmentV = new Vector3[_lengthOfNeck];
-        _wiggleDir = bootstrap.GameData.WiggleDir.transform;
-        _tarGetDir = bootstrap.GameData.TargetDir.transform;
-        _tailEnd = bootstrap.GameData.EnemyBody.transform;
+        _wiggleDir = bootstrap.EnemyNeckData.WiggleDir.transform;
+        _tarGetDir = bootstrap.EnemyNeckData.TargetDir.transform;
+        _tailEnd = bootstrap.EnemyNeckData.EnemyBody.transform;
 
         bootstrap.AddActionToList(OnUpdate, true);
         bootstrap.AddActionToList(OnFixedUpdate, false);
 
-        //ResetPos();
         SetTargetForHead(bootstrap.GameData.PlayerBody.transform);
         SetTargetForMove(bootstrap.GameData.PlayerBody.transform);
+    }
+
+    public void SetNoveSpeed(float value) {
+        _moveSpeed = value;
+    }
+
+    public void SetTargetForHead(Vector3 targetPosition) {
+        _defaultTargetMove.position = targetPosition;
+        _currentTargertHead = _defaultTargetMove;
     }
 
     public void SetTargetForHead(Transform target) {
@@ -57,6 +68,15 @@ public class NeckBoss
 
     public void SetTargetForMove(Transform target) {
         _currentTargertMove = target;
+    }
+
+    public void SetTargetForMove(Vector3 targetPosition) {
+        _defaultTargetMove.position = targetPosition;
+        _currentTargertMove = _defaultTargetMove;
+    }
+
+    public void SetStopDistance(float value) {
+        _stopDistance = value;
     }
 
     private void OnUpdate() {
@@ -70,7 +90,7 @@ public class NeckBoss
     }
 
     private void Looking() {
-        
+        if (_currentTargertHead == null) return;
         _direction = _currentTargertHead.position - _transformHead.position;
         float angle = Mathf.Atan2(_direction.y, _direction.x) * Mathf.Rad2Deg;
         Quaternion rotation = Quaternion.AngleAxis(angle - 180, Vector3.forward);
@@ -78,7 +98,8 @@ public class NeckBoss
     }
 
     private void Moving() {
-        if (Vector2.Distance(_currentTargertMove.position, _transformHead.position) > 2f) {
+        if (_currentTargertMove == null) return;
+        if (Vector2.Distance(_currentTargertMove.position, _transformHead.position) > _stopDistance) {
             Vector3 directionToTarget = (_currentTargertMove.position - _transformHead.position).normalized;
             Vector2 velocity = directionToTarget * _moveSpeed;
             _rigidbody2D.velocity = velocity;
@@ -107,7 +128,7 @@ public class NeckBoss
         _tailEnd.rotation = Quaternion.Slerp(_tailEnd.rotation, rotation, 50 * Time.deltaTime);
     }
 
-    private void ResetPos() {
+    public void ResetPos() {
         _segmentPoses[0] = _tarGetDir.position;
 
         for (int i = 1; i < _lengthOfNeck; i++) {
