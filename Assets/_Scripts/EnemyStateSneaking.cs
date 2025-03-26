@@ -26,7 +26,7 @@ public class EnemyStateSneaking : EnemyState
     public override void Init(Transform target) {
         _timer = 0;
         _timeToWaite = Random.Range(15, 45);
-        _neckBoss.SetNoveSpeed(12f);
+        _neckBoss.SetNoveSpeed(30f);
         _neckBoss.SetStopDistance(0f);
         _neckBoss.SetTargetForHead(_playerTransform);
     }
@@ -43,7 +43,8 @@ public class EnemyStateSneaking : EnemyState
         if (NavMesh.CalculatePath(_enemyTransform.position, _playerTransform.position, NavMesh.AllAreas, _path)) {
             if (_path.status != NavMeshPathStatus.PathComplete) {
                 _waypoints = null;
-                _neckBoss.SetTargetForMove(_playerTransform);
+                NavMesh.SamplePosition(_enemyTransform.position, out NavMeshHit hitOut, 2f, NavMesh.AllAreas);
+                _neckBoss.SetTargetForMove(hitOut.position);
                 return;
             }
 
@@ -73,7 +74,7 @@ public class EnemyStateSneaking : EnemyState
 
         float distance = Vector3.Distance(_playerTransform.position, _enemyTransform.position);
 
-        if (distance < 3 || _timer > _timeToWaite) {
+        if (distance < 3.6 || _timer > _timeToWaite) {
             _neckBoss.SetNoveSpeed(6f);
             StateEnd();
         }

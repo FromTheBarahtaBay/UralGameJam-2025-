@@ -13,8 +13,11 @@ public class Bootstrap : MonoBehaviour
 
     private List<Action> _actionsOnUpdate = new();
     private List<Action> _actionsOnFixedUpdate = new();
+    private List<Action> _actionsOnDisable = new();
 
     public NeckBoss NeckBoss { get; private set; }
+    private UIController _uIController;
+    private bool _gameOnPause = true;
 
     private void Awake()
     {
@@ -32,6 +35,7 @@ public class Bootstrap : MonoBehaviour
 
     private IEnumerator LoadGameData() {
         yield return LoadHeavyData(() => { _gameData.TryFindNullFields(_gameData); });
+        yield return LoadHeavyData(() => { _uIController = new UIController(this); });
         yield return LoadHeavyData(() => { NeckBoss = new NeckBoss(this); });
         yield return LoadHeavyData(() => { new EnemyStatesController(this); });
         yield return LoadHeavyData(() => { new MouseTracker(this); });
@@ -40,6 +44,8 @@ public class Bootstrap : MonoBehaviour
         yield return LoadHeavyData(() => { new FieldOfView(this); });
         yield return LoadHeavyData(() => { new NeckBossIKController(this); });
         yield return LoadHeavyData(() => { new PlayerMove(this); });
+        yield return LoadHeavyData(() => { new PlayerHealthSystem(this); });
+        yield return LoadHeavyData(() => { new NewGame(this); });
     }
 
     private IEnumerator LoadHeavyData(Action action) {
@@ -56,13 +62,16 @@ public class Bootstrap : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
+    private void Update() {
+        if (_gameOnPause) return;
+
         foreach (var action in _actionsOnUpdate)
             action?.Invoke();
     }
 
     private void FixedUpdate() {
+        if (_gameOnPause) return;
+
         foreach (var action in _actionsOnFixedUpdate)
             action?.Invoke();
     }
@@ -74,8 +83,30 @@ public class Bootstrap : MonoBehaviour
             _actionsOnFixedUpdate.Add(action);
     }
 
+    public void AddActionOnDisable(Action action) {
+        _actionsOnDisable.Add(action);
+    }
+
     private void GameIsReady(bool value) {
-        _gameData.Canvas.gameObject.SetActive(!value);
+        if (!value) _gameData.CanvasCommon.gameObject.SetActive(!value);
+        Cursor.visible = value;
+        _gameData.CanvasMenu.gameObject.SetActive(value);
         _gameData.ProgressBar.value = !value ? 1 : 0;
+        _gameData.ProgressBar.gameObject.SetActive(!value);
+        if (_uIController != null) _uIController.Init();
+    }
+
+    private void OnDisable() {
+        foreach (var action in _actionsOnDisable) {
+            action?.Invoke();
+        }    
+    }
+
+    public void PauseGame() {
+        _gameOnPause = true;
+    }
+
+    public void RunGame() {
+        _gameOnPause = false;
     }
 }

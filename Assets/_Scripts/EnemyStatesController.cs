@@ -16,6 +16,7 @@ public class EnemyStatesController
     private EnemyState _currentState;
     private NeckBoss _neckBoss;
 
+    private bool _firstEnterence = true;
     private float _timer;
     private float _timeToWaite;
     private int _layerMask;
@@ -38,6 +39,9 @@ public class EnemyStatesController
         _layerMask = LayerMask.GetMask("HighObjects");
         bootstrap.AddActionToList(OnUpdate, true);
         bootstrap.AddActionToList(OnFixedUpdate, false);
+
+        EventsSystem.IsNewGame += ResetState;
+        bootstrap.AddActionOnDisable(OnDisable);
     }
 
     private void AssignStates(EnemyStateSO[] States) {
@@ -51,6 +55,7 @@ public class EnemyStatesController
     private void OnUpdate() {
         CheckCurrentState();
         _currentState.Run();
+        Debug.Log(_currentState);
     }
 
     private void OnFixedUpdate() {
@@ -68,7 +73,7 @@ public class EnemyStatesController
 
         if (_targetTransform == _playerTransform) {
             float distance = Vector2.Distance(_playerTransform.position, _enemyTransform.position);
-            _currentState = (distance > 2) ? _chaseState : _attackState;
+            _currentState = (distance > 2.5f) ? _chaseState : _attackState;
         } else {
             _targetTransform = _enemyTransform;
 
@@ -93,7 +98,7 @@ public class EnemyStatesController
     }
 
     private bool ShouldSneak() {
-        return Random.value > 0.98f;
+        return Random.value > 0.85f;
     }
 
     private void RunLockator() {
@@ -104,7 +109,7 @@ public class EnemyStatesController
 
             float distance = Vector2.Distance(_playerTransform.position, _enemyTransform.position);
 
-            if (hit.collider == null && distance < 10) {
+            if (hit.collider == null && distance < 13.1f) {
 
                 if (_currentState is EnemyStateIdle ||
                     _currentState is EnemyStateRandomMove ||
@@ -128,5 +133,19 @@ public class EnemyStatesController
             _timer = 0;
             _timeToWaite = Random.Range(.5f, 2.5f);
         }
+    }
+
+    private void ResetState() {
+
+        if (_firstEnterence) {
+            _firstEnterence = !_firstEnterence;
+            return;
+        }
+
+        _currentState.StateIsFinished = true;
+    }
+
+    private void OnDisable() {
+        EventsSystem.IsNewGame -= ResetState;
     }
 }

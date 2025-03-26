@@ -13,7 +13,7 @@ public class NeckBoss
     // Looking and Moving
     private Transform _transformHead;
     private float _rotationSpeed = 10f;
-    private float _moveSpeed = 4f;
+    private float _moveSpeed = 5f;
     private Vector2 _direction;
     private Camera _camera;
     private Rigidbody2D _rigidbody2D;

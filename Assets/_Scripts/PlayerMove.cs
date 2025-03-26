@@ -7,7 +7,7 @@ public class PlayerMove
     private Transform _playerTransform;
     private Camera _camera;
     private Rigidbody2D _playerRigidbody2D;
-    private float _speed = 5f;
+    private float _speed;
     private float _currentSpeed;
     float _h;
     float _v;
@@ -50,7 +50,7 @@ public class PlayerMove
         }
 
         if (Input.GetKeyDown(KeyCode.Space)) {
-            _currentSpeed = _speed * 2.5f;
+            _currentSpeed = _speed * 3.2f;
         } else {
             _currentSpeed = Mathf.Lerp(_currentSpeed, targetSpeed, Time.deltaTime * 2f);
         }
@@ -58,8 +58,12 @@ public class PlayerMove
 
     private void Move() {
 
-        Vector2 velocity = new Vector2(_h, _v) * _currentSpeed;
+        Vector2 velocity = new Vector2(_h, _v);
 
-        _playerRigidbody2D.velocity = velocity;
+        if (velocity.magnitude > 1f) {
+            velocity.Normalize();
+        }
+
+        _playerRigidbody2D.velocity = velocity * _currentSpeed;
     }
 }

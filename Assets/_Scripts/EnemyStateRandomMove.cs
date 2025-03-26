@@ -10,7 +10,6 @@ public class EnemyStateRandomMove : EnemyState
     private NeckBoss _neckBoss;
     private NavMeshPath _path;
     private List<Vector3> _waypoints;
-
     private int _moves;
 
     public EnemyStateRandomMove(Bootstrap bootstrap) {
@@ -22,7 +21,7 @@ public class EnemyStateRandomMove : EnemyState
     public override void Init(Transform target) {
         _moves = Random.Range(1, 3);
         _targetPosition = target.position;
-        _neckBoss.SetNoveSpeed(6f);
+        _neckBoss.SetNoveSpeed(10f); //6
         _neckBoss.SetStopDistance(0f);
         _neckBoss.SetTargetForHead(target);
     }
@@ -38,7 +37,9 @@ public class EnemyStateRandomMove : EnemyState
         if (NavMesh.CalculatePath(_enemyTransform.position, _targetPosition, NavMesh.AllAreas, _path)) {
             if (_path.status != NavMeshPathStatus.PathComplete) {
                 _waypoints = null;
-                _neckBoss.SetTargetForMove(_targetPosition);
+                NavMesh.SamplePosition(_enemyTransform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas);
+                _neckBoss.SetTargetForMove(hit.position);
+                StateEnd();
                 return;
             }
 
@@ -59,22 +60,27 @@ public class EnemyStateRandomMove : EnemyState
     private void CheckStateDone() {
         if (Vector3.Distance(_targetPosition, _enemyTransform.position) < 2) {
             if (_moves-- > 0) {
-                _targetPosition = (Vector2)_playerTransform.position + Random.insideUnitCircle.normalized * Random.Range(6f, 13f);
+                _targetPosition = FindRandomNavMeshPosition();
             } else
                 StateEnd();
         }
     }
 
     private Vector3 FindRandomNavMeshPosition() {
-        for (int i = 0; i < 3; i++) {
-            Vector2 randomOffset = Random.insideUnitCircle.normalized * Random.Range(7f, 15f);
-            Vector3 randomPosition = _playerTransform.position + new Vector3(randomOffset.x, 0, randomOffset.y);
 
-            if (NavMesh.SamplePosition(randomPosition, out NavMeshHit hit, 2f, NavMesh.AllAreas)) {
-                return hit.position;
+        Vector3 randomPosition = _enemyTransform.position;
+
+        for (int i = 0; i < 3; i++) {
+
+            randomPosition = (Vector2)_playerTransform.position + Random.insideUnitCircle.normalized * Random.Range(8f, 25f);
+
+            NavMesh.CalculatePath(_enemyTransform.position, randomPosition, NavMesh.AllAreas, _path);
+
+            if (_path.status != NavMeshPathStatus.PathComplete) {
+                return _enemyTransform.position;
             }
         }
-        return _enemyTransform.position; // Если не нашли, остаёмся на месте
+        return randomPosition;
     }
 
     public override void StateEnd() {

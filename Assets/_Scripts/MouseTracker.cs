@@ -21,8 +21,6 @@ public class MouseTracker {
         _playerTransform = bootstrap.GameData.PlayerBody.transform;
         _camera = bootstrap.GameData.Camera;
         _rangeForInteraction = bootstrap.GameData.RangeForInteraction;
-
-        Cursor.visible = false;
     }
 
     private void OnUpdate() {
@@ -37,11 +35,11 @@ public class MouseTracker {
     private void CreateMousePoint (Bootstrap bootstrap) {
 
         var mousePoint = new GameObject("MousePoint");
-        mousePoint.layer = 8;
+        mousePoint.layer = 13;
 
         var mousePointSpriteRenderer = mousePoint.AddComponent<SpriteRenderer>();
         _mouseSpriteRenderer = mousePointSpriteRenderer;
-        _mouseSpriteRenderer.sortingOrder = 1001;
+        _mouseSpriteRenderer.sortingOrder = 3001;
         mousePointSpriteRenderer.sprite = bootstrap.GameData.MouseImage;
         _mousePointPosition = mousePoint.transform;
     }
@@ -92,10 +90,10 @@ public class MouseTracker {
             Vector3 targetPosition = _camera.ScreenToWorldPoint(Input.mousePosition) - _offsetForDraggingObject;
             Vector2 direction = (targetPosition - _rigidbody2DOfDraggingObject.transform.position);
 
-            if (direction.magnitude < 0.1f) {
+            if (direction.magnitude < 0.05f) {
                 _rigidbody2DOfDraggingObject.velocity = Vector2.zero;
             } else
-                _rigidbody2DOfDraggingObject.velocity = direction * 1.5f;
+                _rigidbody2DOfDraggingObject.velocity = direction * 1.3f;
         }
     }
 

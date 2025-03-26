@@ -10,9 +10,11 @@ public class EnemyStateChase : EnemyState
     private NeckBoss _neckBoss;
     private NavMeshPath _path;
     private List<Vector3> _waypoints;
+    private float _speed;
 
     public EnemyStateChase(Bootstrap bootstrap) {
         _neckBoss = bootstrap.NeckBoss;
+        _speed = bootstrap.GameData.SpeedToMove * 2.5f;
         _enemyTransform = bootstrap.EnemyNeckData.EnemyHead.transform;
         _playerTransform = bootstrap.GameData.PlayerBody.transform;
     }
@@ -23,7 +25,7 @@ public class EnemyStateChase : EnemyState
         } else {
             _targetTransform = _playerTransform;
         }
-        _neckBoss.SetNoveSpeed(7f);
+        _neckBoss.SetNoveSpeed(_speed);
         _neckBoss.SetStopDistance(0f);
         _neckBoss.SetTargetForHead(target);
     }
@@ -39,7 +41,13 @@ public class EnemyStateChase : EnemyState
         if (NavMesh.CalculatePath(_enemyTransform.position, _targetTransform.position, NavMesh.AllAreas, _path)) {
             if (_path.status != NavMeshPathStatus.PathComplete) {
                 _waypoints = null;
-                _neckBoss.SetTargetForMove(_targetTransform);
+
+                if (_targetTransform == _playerTransform) {
+                    _neckBoss.SetTargetForMove(_playerTransform);
+                } else {
+                    NavMesh.SamplePosition(_enemyTransform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas);
+                    _neckBoss.SetTargetForMove(hit.position);
+                }
                 return;
             }
 
@@ -57,7 +65,7 @@ public class EnemyStateChase : EnemyState
     }
 
     private void CheckStateDone() {
-        if (Vector3.Distance(_targetTransform.position, _enemyTransform.position) < 2) {
+        if (Vector3.Distance(_targetTransform.position, _enemyTransform.position) <= 2.5f) {
             StateEnd();
         }
     }

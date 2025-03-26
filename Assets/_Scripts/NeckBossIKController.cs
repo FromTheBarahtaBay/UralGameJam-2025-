@@ -47,7 +47,7 @@ public class NeckBossIKController
                 if (i == 0) _inverse *= -1;
             }
 
-            _bodyparts[i].position = Vector3.Lerp(_bodyparts[i].position, _currentPositions[i], Time.fixedDeltaTime * _speedAnimation);
+            _bodyparts[i].position = Vector3.Lerp(_bodyparts[i].position, _currentPositions[i], Time.deltaTime * _speedAnimation);
         }
     }
 
@@ -56,7 +56,7 @@ public class NeckBossIKController
 
             var targetAngle = _defaultRotation[i] * Quaternion.Euler(0, 0, _magnitude * ((i % 2 == 0) ? _inverse  : -_inverse * 2));
 
-            _spineBones[i].localRotation = Quaternion.Lerp(_spineBones[i].localRotation, targetAngle, Time.fixedDeltaTime * _speedAnimation / 5);
+            _spineBones[i].localRotation = Quaternion.Lerp(_spineBones[i].localRotation, targetAngle, Time.deltaTime * _speedAnimation / 5);
         }
     }
 }

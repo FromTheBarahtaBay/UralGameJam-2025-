@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class FieldOfView
@@ -64,11 +66,32 @@ public class FieldOfView
         int triangleIndex = 0;
         for (int i = 0; i <= _rayCount; i++) {
             Vector3 vertex;
+
+            Vector2 rayDirection = GetVectorFromAngle(angle);
+
             RaycastHit2D raycastHit2D = Physics2D.Raycast(_origin, GetVectorFromAngle(angle), _viewDIstance, _layerMask);
+
             if (raycastHit2D.collider == null) {
                 vertex = _origin + GetVectorFromAngle(angle) * _viewDIstance;
             } else {
                 vertex = raycastHit2D.point;
+
+                var size = Mathf.Max(raycastHit2D.collider.bounds.size.x, raycastHit2D.collider.bounds.size.y);
+
+                // 1. Определяем точку за коллайдером
+                Vector2 behindPoint = raycastHit2D.point + rayDirection * size;
+
+                // 2. Стреляем назад в противоположном направлении
+                RaycastHit2D[] backHits = Physics2D.RaycastAll(behindPoint, -rayDirection, _viewDIstance, _layerMask);
+
+                foreach (var backHit in backHits) {
+                    if (backHit.collider != null) {
+                        if (backHit.collider == raycastHit2D.collider) {
+                            vertex = backHit.point;
+                            break;
+                        }
+                    }
+                }
             }
 
             vertices[vertexIndex] = vertex;

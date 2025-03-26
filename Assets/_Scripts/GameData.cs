@@ -12,13 +12,24 @@ public class GameData {
     public float SpeedToMove = 5f;
     [HideInInspector] public Rigidbody2D PlayerRigidbody2D;
     public float RangeForInteraction = 3f;
+    public LayerMask PlayerMask;
 
     [Header("Camera")]
     public Camera Camera;
 
     [Header("UI (Loading)")]
-    public Canvas Canvas;
+    public CanvasGroup CanvasCommon;
+    public CanvasGroup CanvasMenu;
+    public CanvasGroup CanvasRotating;
+    public CanvasGroup CanvasAlarm;
+    public CanvasGroup CanvasGameOver;
+    public RectTransform PanelLoad;
+    public float SpeedOfRotationUI;
     public Slider ProgressBar;
+    public Button StartButton;
+    public Button ExitButton;
+    public Button MainMenuButton;
+    public RectTransform Header;
 
     [Header("Mouse")]
     public Sprite MouseImage;
