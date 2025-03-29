@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,11 +12,20 @@ public class GameData {
     public GameObject PlayerBody;
     public float SpeedToMove = 5f;
     [HideInInspector] public Rigidbody2D PlayerRigidbody2D;
-    public float RangeForInteraction = 3f;
+    public float RangeForInteraction = 3.5f;
     public LayerMask PlayerMask;
+
+    [Header("PlayerIK")]
+    public Transform[] Bodyparts;
+    public Transform targetsObj;
+    public Transform[] Targets;
+    public Transform Head;
+    public Transform Torso;
+    public Transform[] ArmBones;
 
     [Header("Camera")]
     public Camera Camera;
+    public AudioSource AudioSource;
 
     [Header("UI (Loading)")]
     public CanvasGroup CanvasCommon;
@@ -23,13 +33,17 @@ public class GameData {
     public CanvasGroup CanvasRotating;
     public CanvasGroup CanvasAlarm;
     public CanvasGroup CanvasGameOver;
+    public CanvasGroup CanvasGameWin;
     public RectTransform PanelLoad;
     public float SpeedOfRotationUI;
     public Slider ProgressBar;
     public Button StartButton;
     public Button ExitButton;
     public Button MainMenuButton;
+    public Button GoTOMenuButton;
+    public Button GoTOMenuButtonWin;
     public RectTransform Header;
+    public TextMeshProUGUI ToysCount;
 
     [Header("Mouse")]
     public Sprite MouseImage;
@@ -40,6 +54,19 @@ public class GameData {
     public int RayCount = 50;
     public float ViewDistance = 12f;
     public float Fov = 100f;
+
+    [Header("Game")]
+    public Transform Trigger;
+    public Transform[] Spawners;
+    public GameObject[] Toys;
+
+    [Header("Music")]
+    public AudioClip MusicEnterence;
+
+    [Header ("Dialog")]
+    public GameObject CanvasHorn;
+    public CanvasGroup DialogBubble;
+    public TextMeshProUGUI TextField;
 
     public void TryFindNullFields(GameData gameData) {
 

@@ -21,4 +21,10 @@ public class EnemyNeckData
 
     [Header("States")]
     public EnemyStateSO[] States;
+
+    [Header("Sounds")]
+    public AudioClip[] StepsAudio;
+
+    [Header("Trigger")]
+    public GameObject Trigger;
 }

@@ -21,14 +21,15 @@ public class Bootstrap : MonoBehaviour
 
     private void Awake()
     {
+        PauseGame();
         GameIsReady(false);
         StartCoroutine(LoadGame());
     }
 
     private IEnumerator LoadGame() {
-        var coroutinData = StartCoroutine(LoadGameData());
+        var coroutineData = StartCoroutine(LoadGameData());
         var coroutineBar = StartCoroutine(LoadGameBar());
-        yield return coroutinData;
+        yield return coroutineData;
         yield return coroutineBar;
         GameIsReady(true);
     }
@@ -46,6 +47,10 @@ public class Bootstrap : MonoBehaviour
         yield return LoadHeavyData(() => { new PlayerMove(this); });
         yield return LoadHeavyData(() => { new PlayerHealthSystem(this); });
         yield return LoadHeavyData(() => { new NewGame(this); });
+        yield return LoadHeavyData(() => { new PlayerIKController(this); });
+        yield return LoadHeavyData(() => { new GamePickToys(this); });
+        yield return LoadHeavyData(() => { new DialogSystem(this); });
+        yield return LoadHeavyData(() => { new EnemyTrigger(this); });
     }
 
     private IEnumerator LoadHeavyData(Action action) {
@@ -76,7 +81,7 @@ public class Bootstrap : MonoBehaviour
             action?.Invoke();
     }
 
-    public void AddActionToList(Action action, bool toUpdate) {
+    public void AddActionToList(Action action, bool toUpdate = true) {
         if (toUpdate)
             _actionsOnUpdate.Add(action);
         else

@@ -36,6 +36,12 @@ public class FieldOfView
         //_fieldOfView.transform.position = _playerTransform.position;
     }
 
+    private Vector3 MoveMousePoint() {
+        Vector3 mouseScreenPos = Input.mousePosition;
+        mouseScreenPos.z = Mathf.Abs(_camera.transform.position.z);
+        return _camera.ScreenToWorldPoint(mouseScreenPos);
+    }
+
     private void CreateFieldOfViewObject(Bootstrap bootstrap) {
         GameObject fieldOfView = new ("FieldOfView");
         fieldOfView.layer = 7;
@@ -129,7 +135,7 @@ public class FieldOfView
 
     private Vector3 AimDirection() {
 
-        Vector3 mousePosition = _camera.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 mousePosition = MoveMousePoint();
         mousePosition.z = _playerTransform.position.z;
 
         return (mousePosition - _playerTransform.position).normalized;

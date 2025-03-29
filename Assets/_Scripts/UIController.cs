@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
+using TMPro;
 
 public class UIController
 {
@@ -10,6 +11,7 @@ public class UIController
     private CanvasGroup _canvasGroupMenu;
     private CanvasGroup _canvasRotating;
     private CanvasGroup _canvasGameOver;
+    private CanvasGroup _canvasGameWin;
     private RectTransform _canvasMenuRectTrans;
     private Sequence _sequenceRoration;
     private Sequence _sequenceAnim;
@@ -21,8 +23,13 @@ public class UIController
     private Button _startButton;
     private Button _exitButton;
     private Button _mainMenuButton;
+    private Button _goTOMenuButtonWin;
     private RectTransform _header;
     private Bootstrap _bootstrap;
+    private Button _goToMenuButton;
+    private TextMeshProUGUI _textCountToys;
+    private AudioSource _audioSource;
+    private AudioClip _audioClip;
 
     public UIController(Bootstrap bootstrap) {
         _bootstrap = bootstrap;
@@ -37,12 +44,22 @@ public class UIController
         _mainMenuButton = bootstrap.GameData.MainMenuButton;
         _header = bootstrap.GameData.Header;
         _gameData = bootstrap.GameData;
+        _goToMenuButton = bootstrap.GameData.GoTOMenuButton;
+        _canvasGameWin = bootstrap.GameData.CanvasGameWin;
+        _goTOMenuButtonWin = bootstrap.GameData.GoTOMenuButtonWin;
+        _textCountToys = bootstrap.GameData.ToysCount;
+        _audioSource = bootstrap.GameData.AudioSource;
+        _audioClip = bootstrap.GameData.MusicEnterence;
 
         _startButton.onClick.AddListener(StartGame);
         _exitButton.onClick.AddListener(ExitGame);
         _mainMenuButton.onClick.AddListener(ReturnToMenu);
+        _goToMenuButton.onClick.AddListener(GoToMenu);
+        _goTOMenuButtonWin.onClick.AddListener(ReturnToMenu);
 
         EventsSystem.IsPlayerDead += RunGameOver;
+        EventsSystem.IsPlayerWin += RunGameWin;
+        EventsSystem.IsToyFind += IncreesCounterOfToys;
         bootstrap.AddActionOnDisable(OnDisable);
 
         RotateLoadingScene();
@@ -50,6 +67,21 @@ public class UIController
 
     public void Init() {
         RunAnimationMenu();
+        PlayMusic(true);
+    }
+
+    private void PlayMusic(bool value) {
+        if (value) {
+            _audioSource.loop = true;
+            _audioSource.clip = _audioClip;
+            _audioSource.Play();
+        }
+        else {
+            _audioSource.loop = false;
+            _audioSource.clip = null;
+            _audioSource.Stop();
+        }
+            
     }
 
     private void RotateLoadingScene() {
@@ -74,11 +106,13 @@ public class UIController
         _isOpen = !_isOpen;
 
         KillAnimation();
+        
 
         float duration = 1f;
         _startButton.interactable = _isOpen;
         _exitButton.interactable = _isOpen;
 
+        _canvasGameWin.gameObject.SetActive(false);
         _sequenceAnim = DOTween.Sequence();
 
         if (_isOpen) {
@@ -88,7 +122,8 @@ public class UIController
                 .Append(_startButton.transform.DOScale(1, duration / 5).From(0))
                 .Append(_exitButton.transform.DOScale(1, duration / 5).From(0))
                 .AppendInterval(.1f)
-                .Append(_header.DOScale(1, duration / 5).From(0));
+                .Append(_header.DOScale(1, duration / 5).From(0))
+                .JoinCallback(() => Cursor.visible = true);
         } else {
             _sequenceAnim
                 .Append(_header.DOScale(0, duration / 5).From(1))
@@ -97,7 +132,8 @@ public class UIController
                 .Append(_canvasMenuRectTrans.DOScale(0, duration).From(1))
                 .Join(_canvasGroupMenu.DOFade(0, duration).From(1))
                 .AppendInterval(.2f)
-                .Append(_canvasRotating.DOFade(0, 3f).From(1));
+                .Append(_canvasRotating.DOFade(0, 3f).From(1))
+                .AppendCallback(() => _bootstrap.RunGame());
         }
 
         _sequenceAnim
@@ -106,9 +142,11 @@ public class UIController
             .OnComplete(() => {
                 if (_isExit) Quit();
                 if (_isGame) {
+                    PlayMusic(false);
                     Cursor.visible = false;
                     _isGame = false;
-                    _canvasRotating.gameObject.SetActive(false);
+                    _canvasRotating.gameObject.SetActive(_isOpen);
+                    
                 }
             })
             .SetAutoKill(true);
@@ -122,7 +160,6 @@ public class UIController
 
     private void StartGame() {
         _isGame = true;
-        _bootstrap.RunGame();
         EventsSystem.OnIsNewGame();
         RunAnimationMenu();
     }
@@ -142,14 +179,14 @@ public class UIController
 
     private void RunGameOver() {
         KillAnimation();
-
+        _bootstrap.PauseGame();
         _canvasGameOver.gameObject.SetActive(true);
         Cursor.visible = true;
 
         _sequenceAnim = DOTween.Sequence();
 
         _sequenceAnim
-            .Append(_canvasGameOver.DOFade(1, .5f).From(0))
+            .Append(_canvasGameOver.DOFade(1, 1f).From(0))
             .Play()
             .OnComplete(() => { _bootstrap.PauseGame(); })
             .SetAutoKill(true);
@@ -160,6 +197,7 @@ public class UIController
 
         _canvasRotating.gameObject.SetActive(true);
         RotateLoadingScene();
+        PlayMusic(true);
         _canvasRotating.alpha = 1f;
 
         _sequenceAnim = DOTween.Sequence();
@@ -173,5 +211,38 @@ public class UIController
 
     private void OnDisable() {
         EventsSystem.IsPlayerDead -= RunGameOver;
+        EventsSystem.IsPlayerWin -= RunGameWin;
+        EventsSystem.IsToyFind -= IncreesCounterOfToys;
+    }
+
+    private void GoToMenu() {
+        KillAnimation();
+        _bootstrap.PauseGame();
+        _sequenceAnim = DOTween.Sequence();
+
+        _sequenceAnim
+            .Append(_goToMenuButton.transform.DORotate(new Vector3(0, 0, -72), 1f, RotateMode.FastBeyond360).From(Vector3.zero).SetEase(Ease.Linear))
+            .Play()
+            .OnComplete(() => { ReturnToMenu(); })
+            .SetAutoKill(true);
+    }
+
+    private void RunGameWin() {
+        KillAnimation();
+        _bootstrap.PauseGame();
+        _canvasGameWin.gameObject.SetActive(true);
+        Cursor.visible = true;
+
+        _sequenceAnim = DOTween.Sequence();
+
+        _sequenceAnim
+            .Append(_canvasGameWin.DOFade(1, 1f).From(0))
+            .Play()
+            .OnComplete(() => { _bootstrap.PauseGame(); })
+            .SetAutoKill(true);
+    }
+
+    private void IncreesCounterOfToys(int value) {
+        _textCountToys.text = $"{value}";
     }
 }

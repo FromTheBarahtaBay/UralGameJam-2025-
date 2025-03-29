@@ -11,12 +11,14 @@ public class EnemyStateChase : EnemyState
     private NavMeshPath _path;
     private List<Vector3> _waypoints;
     private float _speed;
+    private int _layerMask;
 
     public EnemyStateChase(Bootstrap bootstrap) {
         _neckBoss = bootstrap.NeckBoss;
         _speed = bootstrap.GameData.SpeedToMove * 2.5f;
         _enemyTransform = bootstrap.EnemyNeckData.EnemyHead.transform;
         _playerTransform = bootstrap.GameData.PlayerBody.transform;
+        _layerMask = LayerMask.GetMask("HighObjects");
     }
 
     public override void Init(Transform target) {
@@ -38,29 +40,33 @@ public class EnemyStateChase : EnemyState
     private void MakePathToPlayer() {
         _path = new NavMeshPath();
 
-        if (NavMesh.CalculatePath(_enemyTransform.position, _targetTransform.position, NavMesh.AllAreas, _path)) {
-            if (_path.status != NavMeshPathStatus.PathComplete) {
-                _waypoints = null;
+        NavMesh.CalculatePath(_enemyTransform.position, _targetTransform.position, NavMesh.AllAreas, _path);
 
-                if (_targetTransform == _playerTransform) {
+        if (_path.status != NavMeshPathStatus.PathComplete) {
+            _waypoints = null;
+
+            if (_targetTransform == _playerTransform) {
+                RaycastHit2D hit = Physics2D.Linecast(_enemyTransform.position, _playerTransform.position, _layerMask);
+                if (hit.collider == null) {
                     _neckBoss.SetTargetForMove(_playerTransform);
-                } else {
-                    NavMesh.SamplePosition(_enemyTransform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas);
-                    _neckBoss.SetTargetForMove(hit.position);
+                    return;
                 }
-                return;
+            } else {
+                NavMesh.SamplePosition(_enemyTransform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas);
+                _enemyTransform.position = hit.position;
             }
+            return;
+        }
 
-            _waypoints = new List<Vector3>(_path.corners);
+        _waypoints = new List<Vector3>(_path.corners);
 
-            for (int i = 0; i < _waypoints.Count - 1; i++) {
-                Debug.DrawLine(_waypoints[i], _waypoints[i + 1], Color.green);
-                Debug.DrawRay(_waypoints[i], Vector2.up, Color.blue, 1f);
-            }
+        for (int i = 0; i < _waypoints.Count - 1; i++) {
+            Debug.DrawLine(_waypoints[i], _waypoints[i + 1], Color.green);
+            Debug.DrawRay(_waypoints[i], Vector2.up, Color.blue, 1f);
+        }
 
-            if (_waypoints.Count > 1) {
-                _neckBoss.SetTargetForMove(_waypoints[1]);
-            }
+        if (_waypoints.Count > 1) {
+            _neckBoss.SetTargetForMove(_waypoints[1]);
         }
     }
 

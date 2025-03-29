@@ -40,33 +40,34 @@ public class EnemyStateSneaking : EnemyState
     private void MakePathToPlayer() {
         _path = new NavMeshPath();
 
-        if (NavMesh.CalculatePath(_enemyTransform.position, _playerTransform.position, NavMesh.AllAreas, _path)) {
-            if (_path.status != NavMeshPathStatus.PathComplete) {
-                _waypoints = null;
-                NavMesh.SamplePosition(_enemyTransform.position, out NavMeshHit hitOut, 2f, NavMesh.AllAreas);
-                _neckBoss.SetTargetForMove(hitOut.position);
-                return;
-            }
+        NavMesh.CalculatePath(_enemyTransform.position, _playerTransform.position, NavMesh.AllAreas, _path);
 
-            _waypoints = new List<Vector3>(_path.corners);
+        RaycastHit2D hit = Physics2D.Linecast(_enemyTransform.position, _playerTransform.position, _layerMask);
 
-            for (int i = 0; i < _waypoints.Count - 1; i++) {
-                Debug.DrawLine(_waypoints[i], _waypoints[i + 1], Color.green);
-                Debug.DrawRay(_waypoints[i], Vector2.up, Color.blue, 1f);
+        if (_path.status != NavMeshPathStatus.PathComplete) {
+            _waypoints = null;
+            if (NavMesh.SamplePosition(_enemyTransform.position, out NavMeshHit hitOut, 2f, NavMesh.AllAreas)) {
+                _enemyTransform.position = hitOut.position;
             }
+            if (hit.collider != null) StateEnd();
+            return;
+        }
 
-            RaycastHit2D hit = Physics2D.Linecast(_enemyTransform.position, _playerTransform.position, _layerMask);
+        _waypoints = new List<Vector3>(_path.corners);
 
-            if (hit.collider == null) {
-                _neckBoss.SetNoveSpeed(0f);
-            }
-            else {
-                _neckBoss.SetNoveSpeed(8f);
-            }
+        for (int i = 0; i < _waypoints.Count - 1; i++) {
+            Debug.DrawLine(_waypoints[i], _waypoints[i + 1], Color.green);
+            Debug.DrawRay(_waypoints[i], Vector2.up, Color.blue, 1f);
+        }
 
-            if (_waypoints.Count > 1) {
-                _neckBoss.SetTargetForMove(_waypoints[1]);
-            }
+        if (hit.collider == null) {
+            _neckBoss.SetNoveSpeed(0f);
+        } else {
+            _neckBoss.SetNoveSpeed(8f);
+        }
+
+        if (_waypoints.Count > 1) {
+            _neckBoss.SetTargetForMove(_waypoints[1]);
         }
     }
 

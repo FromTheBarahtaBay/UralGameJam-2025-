@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyStatesController
 {
@@ -13,13 +14,17 @@ public class EnemyStatesController
     private EnemyStateAttack _attackState;
     private EnemyStateRandomMove _randomMoveState;
     private EnemyStateSneaking _sneakingState;
+    private EnemyStateOpenDoors _enemyStateOpenDoors;
     private EnemyState _currentState;
     private NeckBoss _neckBoss;
+    private NavMeshPath _path;
 
     private bool _firstEnterence = true;
     private float _timer;
     private float _timeToWaite;
     private int _layerMask;
+
+    private bool _isOnce = true;
 
     public EnemyStatesController(Bootstrap bootstrap) {
         _mark = new GameObject("mark");
@@ -30,6 +35,7 @@ public class EnemyStatesController
         _idleState = new EnemyStateIdle(bootstrap);
         _randomMoveState = new EnemyStateRandomMove(bootstrap);
         _sneakingState = new EnemyStateSneaking(bootstrap);
+        _enemyStateOpenDoors = new EnemyStateOpenDoors(bootstrap);
         _neckBoss = bootstrap.NeckBoss;
         AssignStates(bootstrap.EnemyNeckData.States);
         _playerTransform = bootstrap.GameData.PlayerBody.transform;
@@ -55,7 +61,7 @@ public class EnemyStatesController
     private void OnUpdate() {
         CheckCurrentState();
         _currentState.Run();
-        Debug.Log(_currentState);
+        //Debug.Log(_currentState);
     }
 
     private void OnFixedUpdate() {
@@ -63,6 +69,14 @@ public class EnemyStatesController
     }
 
     private void CheckCurrentState() {
+
+        if (_isOnce && _enemyTransform.gameObject.activeSelf) {
+            _isOnce = false;
+            _currentState = _sneakingState;
+            _currentState.Init(_playerTransform);
+            return;
+        }
+
         if (_currentState.StateIsFinished) {
             _currentState.StateIsFinished = false;
             SetCurrentState();
@@ -109,14 +123,25 @@ public class EnemyStatesController
 
             float distance = Vector2.Distance(_playerTransform.position, _enemyTransform.position);
 
-            if (hit.collider == null && distance < 13.1f) {
+            if (!(_currentState is EnemyStateOpenDoors)) {
+                _path = new NavMeshPath();
+                if (NavMesh.CalculatePath(_enemyTransform.position, _playerTransform.position, NavMesh.AllAreas, _path)) {
+                    if (_path.status != NavMeshPathStatus.PathComplete) {
+                        _currentState = _enemyStateOpenDoors;
+                        _currentState.Init(_playerTransform);
+                        return;
+                    }
+                }
+            }
+
+            if (hit.collider == null && distance < 13.5f) {
 
                 if (_currentState is EnemyStateIdle ||
                     _currentState is EnemyStateRandomMove ||
                     _currentState is EnemyStateAttack) {
                     _targetTransform = _playerTransform;
                     _currentState.StateIsFinished = true;
-                }  
+                }
             } else {
                 switch (_currentState) {
                     case EnemyStateChase:
@@ -131,7 +156,7 @@ public class EnemyStatesController
                 }
             }
             _timer = 0;
-            _timeToWaite = Random.Range(.5f, 2.5f);
+            _timeToWaite = Random.Range(.5f, 2.1f);
         }
     }
 

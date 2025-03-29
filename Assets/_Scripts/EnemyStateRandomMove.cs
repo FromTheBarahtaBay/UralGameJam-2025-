@@ -34,26 +34,27 @@ public class EnemyStateRandomMove : EnemyState
     private void MakePathToTarget() {
         _path = new NavMeshPath();
 
-        if (NavMesh.CalculatePath(_enemyTransform.position, _targetPosition, NavMesh.AllAreas, _path)) {
-            if (_path.status != NavMeshPathStatus.PathComplete) {
-                _waypoints = null;
-                NavMesh.SamplePosition(_enemyTransform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas);
-                _neckBoss.SetTargetForMove(hit.position);
-                StateEnd();
-                return;
-            }
+        NavMesh.CalculatePath(_enemyTransform.position, _targetPosition, NavMesh.AllAreas, _path);
 
-            _waypoints = new List<Vector3>(_path.corners);
-
-            for (int i = 0; i < _waypoints.Count - 1; i++) {
-                Debug.DrawLine(_waypoints[i], _waypoints[i + 1], Color.green);
-                Debug.DrawRay(_waypoints[i], Vector2.up, Color.blue, 1f);
+        if (_path.status != NavMeshPathStatus.PathComplete) {
+            _waypoints = null;
+            if (NavMesh.SamplePosition(_enemyTransform.position, out NavMeshHit hit, 10f, NavMesh.AllAreas)) {
+                _enemyTransform.position = hit.position;
             }
+            StateEnd();
+            return;
+        }
 
-            if (_waypoints.Count > 1) {
-                _neckBoss.SetTargetForMove(_waypoints[1]);
-                _neckBoss.SetTargetForHead(_waypoints[1]);
-            }
+        _waypoints = new List<Vector3>(_path.corners);
+
+        for (int i = 0; i < _waypoints.Count - 1; i++) {
+            Debug.DrawLine(_waypoints[i], _waypoints[i + 1], Color.green);
+            Debug.DrawRay(_waypoints[i], Vector2.up, Color.blue, 1f);
+        }
+
+        if (_waypoints.Count > 1) {
+            _neckBoss.SetTargetForMove(_waypoints[1]);
+            _neckBoss.SetTargetForHead(_waypoints[1]);
         }
     }
 
@@ -72,7 +73,7 @@ public class EnemyStateRandomMove : EnemyState
 
         for (int i = 0; i < 3; i++) {
 
-            randomPosition = (Vector2)_playerTransform.position + Random.insideUnitCircle.normalized * Random.Range(8f, 25f);
+            randomPosition = (Vector2)_playerTransform.position + Random.insideUnitCircle.normalized * Random.Range(7f, 20f);
 
             NavMesh.CalculatePath(_enemyTransform.position, randomPosition, NavMesh.AllAreas, _path);
 

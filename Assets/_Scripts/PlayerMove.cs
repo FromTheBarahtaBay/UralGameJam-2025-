@@ -32,6 +32,12 @@ public class PlayerMove
         Move();
     }
 
+    private Vector3 MoveMousePoint() {
+        Vector3 mouseScreenPos = Input.mousePosition;
+        mouseScreenPos.z = Mathf.Abs(_camera.transform.position.z);
+        return _camera.ScreenToWorldPoint(mouseScreenPos);
+    }
+
     private void Control() {
 
         _h = Input.GetAxis("Horizontal");
@@ -39,7 +45,7 @@ public class PlayerMove
 
         if (_h == 0 && _v == 0) return;
 
-        Vector3 directionToTarget = (_camera.ScreenToWorldPoint(Input.mousePosition) - _playerTransform.position).normalized;
+        Vector3 directionToTarget = (MoveMousePoint() - _playerTransform.position).normalized;
         Vector3 playerVelocity = _playerRigidbody2D.velocity.normalized;
         float dot = Vector3.Dot(playerVelocity, directionToTarget);
 

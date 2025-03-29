@@ -16,9 +16,15 @@ public class TurnPlayerToMouse
         TurnToMouse();
     }
 
+    private Vector3 MoveMousePoint() {
+        Vector3 mouseScreenPos = Input.mousePosition;
+        mouseScreenPos.z = Mathf.Abs(_camera.transform.position.z);
+        return _camera.ScreenToWorldPoint(mouseScreenPos);
+    }
+
     private void TurnToMouse() {
 
-        Vector3 mousePosition = _camera.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 mousePosition = MoveMousePoint();
 
         mousePosition.z = _playerTransform.position.z;
 

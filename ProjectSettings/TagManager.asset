@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Mark
   - Furniture
+  - Door
+  - Toys
   layers:
   - Default
   - TransparentFX
@@ -21,9 +23,9 @@ TagManager:
   - Body
   - Player
   - LowObjects
-  - 
-  - 
-  - 
+  - Doors
+  - Grass
+  - Text
   - 
   - 
   - 
