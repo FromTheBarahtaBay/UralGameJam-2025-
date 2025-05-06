@@ -71214,6 +71214,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: player
       objectReference: {fileID: 0}
+    - target: {fileID: 4021217538195869345, guid: 1be6d3b123b294e9ab7f0f52299f43be, type: 3}
+      propertyPath: m_Interpolate
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8621356577893647451, guid: 1be6d3b123b294e9ab7f0f52299f43be, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0.0000000018618367

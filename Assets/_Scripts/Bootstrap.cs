@@ -41,10 +41,10 @@ public class Bootstrap : MonoBehaviour
         yield return LoadHeavyData(() => { new EnemyStatesController(this); });
         yield return LoadHeavyData(() => { new MouseTracker(this); });
         yield return LoadHeavyData(() => { new TurnPlayerToMouse(this); });
-        yield return LoadHeavyData(() => { new CameraMove(this); });
         yield return LoadHeavyData(() => { new FieldOfView(this); });
         yield return LoadHeavyData(() => { new NeckBossIKController(this); });
         yield return LoadHeavyData(() => { new PlayerMove(this); });
+        yield return LoadHeavyData(() => { new CameraMove(this); });
         yield return LoadHeavyData(() => { new PlayerHealthSystem(this); });
         yield return LoadHeavyData(() => { new NewGame(this); });
         yield return LoadHeavyData(() => { new PlayerIKController(this); });
